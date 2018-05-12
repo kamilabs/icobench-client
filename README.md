@@ -1,4 +1,4 @@
-# IcoBench Client
+# IcoBench Client [![Build Status](https://travis-ci.org/kamilabs/icobench-client.svg?branch=master)](https://travis-ci.org/kamilabs/icobench-client)
 
 This library is an API client for https://icobench.com
 
