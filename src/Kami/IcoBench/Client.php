@@ -34,7 +34,7 @@ class Client implements ClientInterface
     {
         $this->privateKey = $privateKey;
         $this->publicKey  = $privateKey;
-        $this->httpClient = new HttpClient(array_merge(['base_url' => self::API_URL], $options));
+        $this->httpClient = new HttpClient(array_merge(['base_uri' => self::API_URL], $options));
     }
 
     /**
