@@ -17,7 +17,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "Kami\\": "src/Kami"
+            "Kami\\IcoBench\\": "src/Kami/IcoBench"
         }
     },
     "autoload-dev": {
