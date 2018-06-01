@@ -34,7 +34,7 @@ class Client implements ClientInterface
     {
         $this->privateKey = $privateKey;
         $this->publicKey  = $privateKey;
-        $this->httpClient = new HttpClient(array_merge(['base_url' => self::API_URL], $options));
+        $this->httpClient = new HttpClient(array_merge(['base_uri' => self::API_URL], $options));
     }
 
     /**
@@ -77,16 +77,14 @@ class Client implements ClientInterface
      *
      * @return array | string
      */
-    protected function request($action, $data)
+    protected function request($action, array $data)
     {
         $payload = json_encode($data);
 
         try {
             $response = $this->httpClient->post($action, [
-                'data' => $payload,
+                'json' => $data,
                 'headers' => [
-                    'Content-type' => 'application/json',
-                    'Content-Length' => strlen($payload),
                     'X-ICObench-Key' => $this->publicKey,
                     'X-ICObench-Sig' => $this->sign($payload)
                 ]
