@@ -42,7 +42,7 @@ class Client implements ClientInterface
      */
     public function getIcos($type = 'all', $data = [])
     {
-        return $this->request(sprintf('icos/%s', $type), $data);
+        return $this->request(sprintf('icos/%s', $type), $data, true);
     }
 
     /**
@@ -50,7 +50,7 @@ class Client implements ClientInterface
      */
     public function getIco($id, $data = [])
     {
-        return $this->request(sprintf('ico/%s', $id), $data);
+        return $this->request(sprintf('ico/%s', $id), $data, true);
     }
 
     /**
@@ -58,7 +58,7 @@ class Client implements ClientInterface
      */
     public function getOther($type)
     {
-        return $this->request(sprintf('other/%s', $type), []);
+        return $this->request(sprintf('other/%s', $type), [], true);
     }
 
     /**
@@ -66,23 +66,26 @@ class Client implements ClientInterface
      */
     public function getPeople($type = 'registered', $data = [])
     {
-        return $this->request(sprintf('people/%s', $type), $data);
+        return $this->request(sprintf('people/%s', $type), $data, true);
     }
 
     /**
      * @param $action
      * @param $data
+     * @param boolean $async
      *
      * @throws IcoBenchException
      *
      * @return array | string
      */
-    protected function request($action, array $data)
+    protected function request($action, array $data, $async = false)
     {
+        $method = $async ? 'postAsync' : 'post';
+        
         $payload = json_encode($data);
 
         try {
-            $response = $this->httpClient->post($action, [
+            $response = $this->httpClient->$method($action, [
                 'json' => $data,
                 'headers' => [
                     'X-ICObench-Key' => $this->publicKey,
