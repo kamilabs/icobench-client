@@ -42,7 +42,7 @@ class Client implements ClientInterface
      */
     public function getIcos($type = 'all', $data = [])
     {
-        return $this->request(sprintf('icos/%s', $type), $data);
+        return $this->request(sprintf('icos/%s', $type), $data, true);
     }
 
     /**
@@ -50,7 +50,7 @@ class Client implements ClientInterface
      */
     public function getIco($id, $data = [])
     {
-        return $this->request(sprintf('ico/%s', $id), $data);
+        return $this->request(sprintf('ico/%s', $id), $data, true);
     }
 
     /**
@@ -58,7 +58,7 @@ class Client implements ClientInterface
      */
     public function getOther($type)
     {
-        return $this->request(sprintf('other/%s', $type), []);
+        return $this->request(sprintf('other/%s', $type), [], true);
     }
 
     /**
@@ -66,35 +66,35 @@ class Client implements ClientInterface
      */
     public function getPeople($type = 'registered', $data = [])
     {
-        return $this->request(sprintf('people/%s', $type), $data);
+        return $this->request(sprintf('people/%s', $type), $data, true);
     }
 
     /**
      * @param $action
      * @param $data
-     *
-     * @throws IcoBenchException
+     * @param boolean $async
      *
      * @return array | string
      */
-    protected function request($action, array $data)
+    protected function request($action, array $data, $async = false)
     {
+        $method = $async ? 'postAsync' : 'post';
         $payload = json_encode($data);
 
-        try {
-            $response = $this->httpClient->post($action, [
-                'json' => $data,
-                'headers' => [
-                    'X-ICObench-Key' => $this->publicKey,
-                    'X-ICObench-Sig' => $this->sign($payload)
-                ]
-            ]);
-        } catch (\Exception $exception) {
-            throw new IcoBenchException($exception->getMessage());
-        }
+        $promise = $this->httpClient->$method($action, [
+            'json' => $data,
+            'headers' => [
+                'X-ICObench-Key' => $this->publicKey,
+                'X-ICObench-Sig' => $this->sign($payload)
+            ]
+        ]);
+        $promise->then(
+            function (ResponseInterface $res) {
+                return $this->processResponse($res);
+            }
+        );
 
-
-        return $this->processResponse($response);
+        return $promise;
     }
 
     /**
@@ -119,9 +119,9 @@ class Client implements ClientInterface
     protected function processResponse(ResponseInterface $response)
     {
         if (200 !== $response->getStatusCode()) {
-           throw new IcoBenchException(
-               sprintf('IcoBench replied with non-success status (%s)', $response->getStatusCode())
-           );
+            throw new IcoBenchException(
+                sprintf('IcoBench replied with non-success status (%s)', $response->getStatusCode())
+            );
         }
 
         $data = json_decode($response->getBody(), true);
@@ -131,7 +131,7 @@ class Client implements ClientInterface
         }
 
         if (isset($data['message'])) {
-           return $data['message'];
+            return $data['message'];
         }
 
         return $data;
