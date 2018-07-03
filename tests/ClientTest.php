@@ -2,6 +2,7 @@
 
 namespace Kami\IcoBench\Tests;
 
+use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
@@ -20,46 +21,46 @@ class ClientTest extends TestCase
     public function testGetIcosSuccessResponse()
     {
         $client = $this->createClientWithHttpClientMocked(new Response(200, [], json_encode(['some_data'=>'data'])));
-        $this->assertEquals(['some_data'=>'data'], $client->getIcos());
+        $this->assertEquals(['some_data'=>'data'], $client->getIcos()->wait());
     }
 
     public function testGetIcosWithErrorsInResponse()
     {
         $client = $this->createClientWithHttpClientMocked(new Response(200, [], json_encode(['error'=>'test'])));
         $this->expectException(IcoBenchException::class);
-        $client->getIcos();
+        $client->getIcos()->wait();
     }
 
     public function testGetIcosWithMessageInResponse()
     {
         $client = $this->createClientWithHttpClientMocked(new Response(200, [], json_encode(['message'=>'test'])));
-        $this->assertEquals('test', $client->getIcos());
+        $this->assertEquals('test', $client->getIcos()->wait());
     }
 
     public function testGetIcosWithNotSuccessResponse()
     {
         $client = $this->createClientWithHttpClientMocked(new Response(503));
-        $this->expectException(IcoBenchException::class);
-        $client->getIcos();
+        $this->expectException(ServerException::class);
+        $client->getIcos()->wait();
     }
 
     public function testGetPeople()
     {
         $client = $this->createClientWithHttpClientMocked(new Response(200, [], json_encode(['some_data'=>'data'])));
-        $this->assertEquals(['some_data'=>'data'], $client->getPeople());
+        $this->assertEquals(['some_data'=>'data'], $client->getPeople()->wait());
     }
 
 
     public function testGetIco()
     {
         $client = $this->createClientWithHttpClientMocked(new Response(200, [], json_encode(['some_data'=>'data'])));
-        $this->assertEquals(['some_data'=>'data'], $client->getIco(1));
+        $this->assertEquals(['some_data'=>'data'], $client->getIco(1)->wait());
     }
 
     public function testGetOther()
     {
         $client = $this->createClientWithHttpClientMocked(new Response(200, [], json_encode(['some_data'=>'data'])));
-        $this->assertEquals(['some_data'=>'data'], $client->getOther('any'));
+        $this->assertEquals(['some_data'=>'data'], $client->getOther('any')->wait());
     }
 
     /**
@@ -73,6 +74,5 @@ class ClientTest extends TestCase
 
         return $client;
     }
-
-
+    
 }
