@@ -42,7 +42,7 @@ class Client implements ClientInterface
      */
     public function getIcos($type = 'all', $data = [])
     {
-        return $this->request(sprintf('icos/%s', $type), $data, true);
+        return $this->request(sprintf('icos/%s', $type), $data);
     }
 
     /**
